@@ -98,6 +98,10 @@
                     }
                 }
             });
+            // 如当前页面就是js, 将当前js的内容赋予js_content
+            if (location.href.endsWith(".js") == true){
+                js_content += document.documentElement.outerText;
+            }
             console.log("[jsfinder] Wait a moment, Processing results")
             // 等待上面fetch获取到js的响应
             sleep(1000).then(()=>{
