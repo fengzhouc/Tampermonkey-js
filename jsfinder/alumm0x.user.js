@@ -98,6 +98,7 @@
                     }
                 }
             });
+            console.log("[jsfinder] Wait a moment, Processing results")
             // 等待上面fetch获取到js的响应
             sleep(5000).then(()=>{
                 result_raw = result_raw.concat(extract_url(js_content));
