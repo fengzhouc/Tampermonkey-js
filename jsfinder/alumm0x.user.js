@@ -12,6 +12,7 @@
     'use strict';
 
     // Your code here...
+    let other_web = [];
     // 页面加载完了才开始执行
     window.onload = function(){
         // sleep，等待页面完全加载完成，一些模板的页面是先加载模板页面，再加载数据跟其他的，所以为了保证都加载完，所以加了等待
@@ -24,20 +25,24 @@
             var request = new XMLHttpRequest();
             request.open("GET", pathname, false);
             request.send();
-            if(request.status === 200){
-                result = request.responseText;
-            }
-            //console.log("[jsfinder] ",pathname, result)
-            return result
+            sleep(3000).then(()=>{
+                if(request.status === 200){
+                    result = request.responseText;
+                }else{
+                    alert("request fail.")
+                }
+                //console.log("[jsfinder] ",pathname, result)
+                return result
+            });
         }
         // 从js中提取api
         function extract_url(js_content){
-            console.log(js_content)
+            // console.log(js_content)
             let regex = /(?:"|')(((?:[a-zA-Z]{1,10}:\/\/|\/\/)[^"'\/]{1,}\.[a-zA-Z]{2,}[^"']{0,})|((?:\/|\.\.\/|\.\/)[^"'><,;| *()(%%$^\/\\\[\]][^"'><,;|()]{1,})|([a-zA-Z0-9_\-\/]{1,}\/[a-zA-Z0-9_\-\/]{1,}\.(?:[a-zA-Z]{1,4}|action)(?:[\?|#][^"|']{0,}|))|([a-zA-Z0-9_\-\/]{1,}\/[a-zA-Z0-9_\-\/]{3,}(?:[\?|#][^"|']{0,}|))|([a-zA-Z0-9_\-]{1,}\.(?:php|asp|aspx|jsp|json|action|html|js|txt|xml)(?:[\?|#][^"|']{0,}|)))(?:"|')/sg;
             let m;
             let result = [];
             while ((m = regex.exec(js_content)) !== null) {
-                console.log(m)
+                // console.log(m)
                 if (m.index === regex.lastIndex) { regex.lastIndex++;}
                 // 把每个匹配的分组都保存下来，最后去重返回
                 m.forEach((match, groupIndex) => {
@@ -48,6 +53,8 @@
                             let suburl = new URL(match);
                             if (suburl.host.endsWith(location.host) == true){
                                 result.push(suburl.href);
+                            } else{
+                                other_web.push(suburl.href);
                             }
                         // 相对api的分支
                         }else{
@@ -88,6 +95,7 @@
                     // 从当前域下js中提取api
                     if (url.host.endsWith(location.host) == true && url.pathname.endsWith(".js") == true) {
                         result_raw = result_raw.concat(extract_url(geturlContent(url.pathname)));
+                        console.log("[jsfinder] get conplete, ", url.pathname)
                         //var headers = new Headers();
                         //headers.append('pragma', 'no-cache');
                         //headers.append('cache-control', 'no-cache');
@@ -115,6 +123,7 @@
                     }
                 })
                 console.log("[jsfinder] found urls: ", Array.from(new Set(result)));
+                console.log("[jsfinder] other_web urls: ", Array.from(new Set(other_web)));
             })
         })
     }
